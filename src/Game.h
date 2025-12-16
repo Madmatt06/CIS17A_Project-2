@@ -1,7 +1,7 @@
 /* 
  * File:   Game.h
  * Author: Matthew Madrigal
- * Purpose:  Game state structure
+ * Purpose:  Game class
  */
 
 #ifndef GAME_H
@@ -9,7 +9,11 @@
 
 #include "Card.h"
 
-struct Game{
+class Game{
+private:
+    enum colors {RED, GREEN, YELLOW, BLUE, WILD};
+    enum types {ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, PLUST, REV, SKIP, PLUSF, CARD};
+public:
     bool turn;      // True is for the player, false is for the computer
     int plScore;    // The score for the player
     int cpScore;    // The score for the computer
@@ -24,6 +28,9 @@ struct Game{
     int bHandS;     // The size of the array of the cards the computer currently has
     int bHandM;     // Max num of elements the array can hold right now
     Card **bHand;    // The cards the computer currently has
+    void playGame(Game &, int, Card **);        // The main game loop. Also handles special logic for cards such as +2, +4, and calls the playWild function when needed
+    int strToCol(string);                       // Converts a string to a color enum
+    int strToNm(string);                        // Converts a string to a type enum
 };
 
 #endif /* GAME_H */
