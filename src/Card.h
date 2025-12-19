@@ -7,6 +7,9 @@
 #ifndef CARD_H
 #define CARD_H
 
+using namespace std;
+#include <string>
+
 class Card{
 private:
     enum colors {RED, GREEN, YELLOW, BLUE, WILD};

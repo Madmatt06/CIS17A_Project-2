@@ -318,3 +318,408 @@ int Game::strToNm(string input) {
     }
     return -1;
 }
+
+Card *Game::playCard(Game &game, bool uno, bool &unoed, bool &quit) {
+    bool choosen = false;
+    Card *usrCard = nullptr;
+    while(!choosen) {                               // This forces the user to play a valid card before continuing
+        int validS;
+        Card **valid = getPlayable(game.handS, game.hand, game.rest, validS);
+        if(validS != 0 || game.drwSize != 0) {      // If its possible for the player to do something, allow them to play
+            cout << "The computer has " << game.bHandS << " cards" << endl;
+            printDeck(game.handS, game.hand, game.rest);
+            cout << "Enter the card you would like to play (Type it as listed)" << ((game.drwSize > 0) ?" or type draw to draw a card" : "") << (uno? ". Since the computer didn't call uno, you can type uno to force them to draw" : "") << ": ";
+            string input, wordF, wordS;
+            getline(cin, input);                    // Gets the card the player wants to play
+            bool next = false;
+            for(int i = 0; i < input.length(); i++) {
+                input[i] = tolower(input[i]);
+            }
+            if(input == "quit") {                   // Special case for quiting the game
+                quit = true;
+                delete []valid;
+                return nullptr;
+            }
+            if(input == "draw") {                   // Special case for drawing from the pile
+                usrCard = drawCard(game.drwSize, game.drwPile);
+                if(usrCard == nullptr) {            // In case the user draws a card when there is nothing to draw (asks what to do again)
+                    cout << "There are no cards to draw." << endl;
+                } else {                            // Tell the user what card they got. If its playable, ask if they want to play it
+                    cout << "You got a " << printCard(usrCard) << endl;
+                    if((usrCard->color == WILD) || (usrCard->color == game.rest->color || usrCard->name == game.rest->name)) {
+                        cout << "Would you like to play it? (yes or No)" << endl;
+                        string toPlay;
+                        while (toPlay != "yes" && toPlay != "no") {
+                            getline(cin, toPlay);
+                            int strSize = toPlay.size();
+                            char *playCSt = new char[strSize];    // This isn't needed but I am using it to make sure I use a cstring at least once
+                            strncpy(playCSt, toPlay.c_str(), strSize);
+                            for(int i = 0; i < strSize; i++) {
+                                playCSt[i] = tolower(playCSt[i]);
+                            }
+                            if(strcmp(playCSt, "yes") != 0 && strcmp(playCSt,"no") != 0) {
+                                cout << "Invalid input" << endl;
+                            }
+                            delete []playCSt;
+                        }
+                        if(toPlay != "yes") {
+                            addCard(game.handS, game.handM, &game.hand, usrCard);
+                            usrCard = nullptr;
+                        }
+                    } else {    // Add to hand if not playable
+                        addCard(game.handS, game.handM, &game.hand, usrCard);
+                        usrCard = nullptr;
+                    }
+                    choosen = true;
+                }
+            } else if(input == "uno") { // Handles uno logic
+                if(!uno) {  // Checks if it was entered to catch the computer or protect themself
+                    if(game.handS == 2 && validS >= 1) {    // Makes sure they can call uno
+                        unoed = true;
+                        cout << "You called uno!" << endl;
+                    } else {
+                        cout << "You can't call uno yet!" << endl;
+                    }
+                } else {    // Makes the computer draw 4 cards
+                    cout << "The computer will draw 4 cards" << endl;
+                    int drawnC = 0;
+                    for(int i = 0; i < 4; i++) {
+                        Card *drawn = drawCard(game.drwSize, game.drwPile);
+                        if(drawn != nullptr) {
+                            drawnC++;
+                            addCard(game.bHandS, game.bHandM, &game.bHand, drawn);
+                        }
+                    }
+                    if(drawnC != 4) {
+                        cout << "The computer could only draw " << drawnC << " cards." << endl;
+                    }
+                    if(game.drwSize == 0) {
+                        cout << "The draw pile is now empty." << endl;
+                    }
+                }
+            }else { // Splits the input into two for parsing of card color and type
+                for(int i = 0; i < input.length(); i++) {
+                    if(input[i] == ' ' && !next) {
+                        next = true;
+                    } else {
+                        if(!next) {
+                            wordF += input[i];
+                        } else {
+                            wordS += input[i];
+                        }
+                    }
+                }
+                int color, name;
+                color = strToCol(wordF);
+                name = strToNm(wordS);
+                if(color != -1 && name != -1) { // Tries to find the card in the playable array. Removes it if found and returns it
+                    for(int i = 0; i < validS; i++) {
+                        Card *card = valid[i];
+                        if(card->color == color && card->name == name) {
+                            choosen = true;
+                            usrCard = card;
+                            removeCard(game.handS, game.hand, card);
+                            break;
+                        }
+                    }
+                }
+                if(!choosen) {
+                    cout << "Can not play card" << endl;
+                }
+            }
+        } else {    // Fail safe if there are no cards playable and the draw pile is empty
+            cout << "You have no playable cards and the draw pile was empty. Your turn will be skipped." << endl;
+            choosen = true;
+        }
+        delete []valid;
+    }
+    return usrCard;
+    
+}
+
+Card *Game::playCom(Game &game, bool uno, bool &unoed) {
+    if(uno) {   // If the player forgot to call uno, there is a 50% change the computer catches it
+        if(rand()%2 == 1) {
+            cout << "The computer caught you with one card!" << endl;
+            int drawnC = 0;
+            for(int i = 0; i < 4; i++) {
+                Card *drawn = drawCard(game.drwSize, game.drwPile);
+                if(drawn != nullptr) {
+                    drawnC++;
+                    addCard(game.handS, game.handM, &game.hand, drawn);
+                }
+            }
+            if(drawnC != 4) {
+                cout << "You could only draw " << drawnC << " cards." << endl;
+            }
+            if(game.drwSize == 0) {
+                cout << "The draw pile is now empty." << endl;
+            }
+        }
+    }
+    Card *usrCard = nullptr;
+    int validS;
+    Card **valid = getPlayable(game.bHandS, game.bHand, game.rest, validS);
+    if(validS != 0 || game.drwSize != 0) {  // If the computer can do something
+        if(validS != 0) {                   // If the computer doesn't have to draw, play a card
+            int index = rand()%validS;
+            usrCard = valid[index];
+            removeCard(game.bHandS, game.bHand, usrCard);
+            cout << "The computer played the card " << printCard(usrCard) << endl;
+        } else {
+            cout << "The computer drawed a card" << endl;
+            Card *drawn = drawCard(game.drwSize, game.drwPile);
+            addCard(game.bHandS, game.bHandM, &game.bHand, drawn);
+        }
+        if(game.bHandS == 1 && rand()%2 == 1) { // There is a 50% chance the computer remembers to call uno. I know this computer is really dumb
+            cout << "The computer called uno!" << endl;
+            unoed = true;
+        }
+    } else {    // If the computer can't play anything and for some reason the draw pile is completly empty, skip their turn
+        cout << "The computer couldn't play anything and the draw pile was empty." << endl;
+        unoed = true;   // Just incase
+    }
+    delete []valid;
+    return usrCard;
+}
+
+Card *Game::playWild(int size, Card **colors) {
+    bool picked = false;
+    Card *cardR;    // Card used to restrict to a color
+    while(!picked) {    // keeps looping until a color is obtained
+        cout << "Choose a color (Red, Green, Yellow, Blue): ";
+        string input;
+        getline(cin, input);
+        for(int i = 0; i < input.length(); i++) {   // Lower case for easier parsing
+            input[i] = tolower(input[i]);
+        }
+        int color;
+        color = strToCol(input);
+        if(color != -1 && color != WILD) {
+            for(int i = 0; i < size; i++) {
+                Card *card = colors[i];
+                if(card->color == color) {
+                    picked = true;
+                    cardR = card;
+                    break;
+                }
+            }
+        } else {
+            cout << "Invalid input" << endl;
+        }
+    }
+    return cardR;
+}
+
+Card *Game::drawCard(int &size, Card **draw) {
+    if(size == 0) {
+        return nullptr;
+    }
+    int index = rand() % size;
+    Card *card = draw[index];
+    removeCard(size, draw, card);
+    return card;
+}
+
+void Game::addCard(int &size, int &maxSize, Card ***hand, Card *card) {
+    if(size >= maxSize) {   // If the array is not large enough, replace it with a bigger one
+        maxSize += 10;
+        Card **handN = new Card*[maxSize];
+        copy(size, *hand, handN);
+        delete [](*hand);
+        *hand = handN;
+    }
+    (*hand)[size] = card;
+    size++;
+}
+
+bool Game::challengeWin(Card *check, Card **deck, int size) {
+    for(int i = 0; i < size; i++) {
+        Card *card = deck[i];
+        if(check->color == card->color) {       // If there was a playable card with a matching color, then the challenger wins
+            return true;
+        }
+    }
+    return false;
+}
+
+void Game::printDeck(int size, Card **deck, Card *active) {
+    cout << "Cards in hand: ";
+    for(int i = 0; i < size; i++) {
+        cout << printCard(deck[i]) << "; ";     // Prints all the cards in the array
+    }
+    cout << endl;
+    Card **play;
+    int playS;
+    play = getPlayable(size, deck, active, playS);
+    cout << "Playable cards in hand: ";
+    for(int i = 0; i < playS; i++) {
+        cout << printCard(play[i]) << "; ";     // Prints all playable cards
+    }
+    cout << endl;
+    delete []play;      // Frees memory
+}
+
+string Game::printCard(Card *card) {
+    string display;
+    // Converts the color enum into a human readable string
+    switch(card->color) {
+        case RED:
+        display += "Red ";
+        break;
+        case GREEN:
+        display += "Green ";
+        break;
+        case YELLOW:
+        display += "Yellow ";
+        break;
+        case BLUE:
+        display += "Blue ";
+        break;
+        case WILD:
+        display += "Wild ";
+        break;
+        default:
+        break;
+    }
+    // Converts the type enum into a human readable string
+    switch(card->name) {
+        case ZERO:
+        case ONE:
+        case TWO:
+        case THREE:
+        case FOUR:
+        case FIVE:
+        case SIX:
+        case SEVEN:
+        case EIGHT:
+        case NINE:
+        display += to_string(card->name);
+        break;
+        case PLUST:
+        display += "Draw Two";
+        break;
+        case PLUSF:
+        display += "Draw Four";
+        break;
+        case REV:
+        display += "Reverse";
+        break;
+        case SKIP:
+        display += "Skip";
+        break;
+        case CARD:
+        default:
+        display += "Card";
+        break;
+    }
+    return display;
+
+}
+
+unsigned int Game::calcPoints(Card **deck, int size) {
+    unsigned int points = 0;
+    for(int i = 0; i < size; i++) {
+        Card *card = deck[i];
+        switch(card->name) {
+            case ZERO:
+            case ONE:
+            case TWO:
+            case THREE:
+            case FOUR:
+            case FIVE:
+            case SIX:
+            case SEVEN:
+            case EIGHT:
+            case NINE:
+            points += card->name;   // Cards 0-9 are valued at their number
+            break;
+            case PLUST:
+            case REV:
+            case SKIP:
+            points += 20;           // Special non wild cards are valued at 20 points each
+            break;
+            case CARD:
+            case PLUSF:
+            points += 50;           // Wild cards (type CARD and PLUSF will always be a wild) are valued at 50 points each
+            break;
+            default:
+            break;
+        }
+    }
+    return points;
+}
+
+void Game::setupGame(Game &game) {
+    const int start = 7;    // The number of cards each player should start with
+    game.handS = start;
+    if(game.hand == nullptr) {          // Prevents accidental memory leaks when called after a previous game
+        game.handM = start;
+        game.hand = new Card*[start];
+    }
+    game.bHandS = start;
+    if(game.bHand == nullptr) {         // Prevents accidental memory leaks when called after a previous game
+        game.bHandM = start;
+        game.bHand = new Card*[start];
+    }
+    for(int i = 0; i < start; i++) {    // Fills the computer's and player's hand with cards
+        Card *card = drawCard(game.drwSize, game.drwPile);
+        game.hand[i] = card;
+        card = drawCard(game.drwSize, game.drwPile);
+        game.bHand[i] = card;
+    }
+    Card *card = drawCard(game.drwSize, game.drwPile);
+    while(card->color == WILD) {        // If the first played card is a wild, return it to the draw pile and draw another
+        addCard(game.drwSize, game.drwMax, &game.drwPile, card);
+        card = drawCard(game.drwSize, game.drwPile);
+    }
+    game.lastPl = card;
+    game.rest = card;
+    game.turn = true;
+}
+
+Card **Game::getPlayable(int size, Card **deck, Card *active, int &plSize) {
+    Card **play;                        // Playable cards
+    int playS = 0;                      // Playable cards size
+    for(int i = 0; i < size; i++) {     // Calculates how large the new array needs to be to hold the playable cards
+        Card *card = deck[i];
+        if(card->color == WILD || card->color == active->color || card->name == active->name) {
+            playS++;
+        }
+    }
+    play = new Card*[playS];            // Creates the array with the correct size
+    plSize = playS;
+    int plIndex = 0;
+    for(int i = 0; i < size; i++) {
+        if(plIndex >= playS) {          // Ends loop early when it should be done
+            break;
+        }
+        Card *card = deck[i];
+        // Adds all playable cards to the list
+        if(card->color == WILD || card->color == active->color || card->name == active->name) {
+            play[plIndex] = card;
+            plIndex++;
+        }
+    }
+    return play;
+}
+
+void Game::copy(int size, Card **arr1, Card **arr2) {
+    for(int i = 0; i < size; i++) {
+        arr2[i] = arr1[i];
+    }
+}
+
+void Game::removeCard(int &size, Card **hand, Card *card) {
+    int index = 0;      // Finds the first instance of a card with a matching pointer and removes it
+    for(int i = 0; i < size; i++) {
+        if(hand[i] == card) {
+            index = i;
+            break;
+        }
+    }
+    for(int i = index+1; i < size; i++) {
+        hand[i-1] = hand[i];
+    }
+    size--;
+}

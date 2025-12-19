@@ -28,7 +28,7 @@ public:
         int nSize;
     };
     T &operator[](const int &);
-    int size() const {return size};
+    int size() const {return size;};
     void append(T&);
     void insert(T&, int&);
     T pop(int&);
@@ -45,9 +45,6 @@ T &Vector<T>::operator[](const int &index) {
 }
 template <class T>
 void Vector<T>::append(T &app) {
-    if(index > len) [
-        throw OutOfBounds(index, len);
-    ]
     if(len >= max) {   // If the array is not large enough, replace it with a bigger one
         resize(len + 10);
     }
@@ -56,36 +53,36 @@ void Vector<T>::append(T &app) {
 }
 template <class T>
 void Vector<T>::insert(T &ins, int &index) {
-    if(index > len) [
+    if(index > len) {
         throw OutOfBounds(index, len);
-    ]
+    }
     if(len >= max) {   // If the array is not large enough, replace it with a bigger one
         resize(len + 10);
     }
     for(int i = index; i < len; i++) {
         arr[i+1] = arr[i];
     }
-    arr[index] = card;
+    arr[index] = ins;
     len++;
 }
 template <class T>
 T Vector<T>::pop(int &index) {
-    T temp = arr[i]
-    remove(i);
+    T temp = arr[index];
+    remove(index);
     return temp;
 }
 template <class T>
 void Vector<T>::remove(int &index) {
-    for(int i = index; i < size; i++) {
+    for(int i = index; i < len; i++) {
         arr[i] = arr[i+1];
     }
-    size--;
+    len--;
 }
 
 template <class T>
 void Vector<T>::resize(int nSize) {
     if(len > nSize) {
-        throw ResizeLoosesData(len, nSize)
+        throw ResizeLoosesData(len, nSize);
     }
     if(nSize == 0) {
         delete []arr;
@@ -116,7 +113,7 @@ Vector<T>::Vector() {
 }
 template <class T>
 Vector<T>::Vector(int size) {
-    if(int < 0) {
+    if(size < 0) {
         throw OutOfBounds(size, 0);
     }
     if(size == 0) {
