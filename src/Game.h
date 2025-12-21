@@ -9,6 +9,7 @@
 
 #include "Card.h"
 #include "GameS.h"
+#include "Player.h"
 #include <fstream>
 using namespace std;
 
@@ -16,13 +17,6 @@ class Game{
 private:
     enum colors {RED, GREEN, YELLOW, BLUE, WILD};
     enum types {ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, PLUST, REV, SKIP, PLUSF, CARD};
-    Card **unique;  // Instead of creating duplicate cards when there is more than one type of card, a single card is created and that pointer is duplicated the number of times needed in the draw pile.
-    Card **genColor();  // Generates the restriction cards used when a wild card is played. They only restrict by color
-    void setupPile(fstream &);                // Gets a file and reads from it to fill the draw pile with the correct cards. Makes modifying rules a bit easier
-    void init();        // Initializes variables to 0
-    void setupGame();                             // Sets up a new game
-    int colorS;
-public:
     bool turn;      // True is for the player, false is for the computer
     int plScore;    // The score for the player
     int cpScore;    // The score for the computer
@@ -38,10 +32,14 @@ public:
     int bHandM;     // Max num of elements the array can hold right now
     Card **bHand;    // The cards the computer currently has
     Card **colors;  // Wild Card restrictions
-    Game(fstream&);         // Initializer
-    Game(GameS&);    // Start with save
-    ~Game();
-    void playGame();        // The main game loop. Also handles special logic for cards such as +2, +4, and calls the playWild function when needed
+    Card **unique;  // Instead of creating duplicate cards when there is more than one type of card, a single card is created and that pointer is duplicated the number of times needed in the draw pile.
+    int colorS;
+    Player *player;
+    Player *compute;
+    Card **genColor();  // Generates the restriction cards used when a wild card is played. They only restrict by color
+    void setupPile(fstream &);                // Gets a file and reads from it to fill the draw pile with the correct cards. Makes modifying rules a bit easier
+    void init();        // Initializes variables to 0
+    void setupGame();                             // Sets up a new game
     int strToCol(string);                       // Converts a string to a color enum
     int strToNm(string);                        // Converts a string to a type enum
     Card *playCard(bool , bool &, bool &);      // Asks the user what card to play and then returns it. Also allows the user to quit, call uno, or call a missed uno
@@ -57,6 +55,12 @@ public:
     Card **getPlayable(int, Card **, Card *, int &);    // Creates a new dynamically allocated array with the cards that can be played given a restriction card
     void copy(int, Card **, Card **);                   // Copys an array to another array
     void removeCard(int &, Card **, Card *);            // Removes a card given its pointer from an array and decreases its size by one
+public:
+    
+    Game(fstream&);         // Initializer
+    Game(GameS&);    // Start with save
+    ~Game();
+    void playGame();        // The main game loop. Also handles special logic for cards such as +2, +4, and calls the playWild function when needed
     void createSave(GameS &);          // Creates a save before the program terminates
 };
 
