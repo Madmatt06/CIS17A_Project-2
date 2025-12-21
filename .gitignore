@@ -45,3 +45,6 @@
 
 # Game data
 save.data
+
+# Debug info
+*.out.dSYM
