@@ -63,7 +63,7 @@ Game::Game(GameS &save) {
     bHand = new Card*[bHandM];
     hand = new Card*[handM];
     turn = save.turn;
-    Card **unique = new Card*[54];
+    unique = new Card*[54];
     int indexDr = 0;
     int indexPl = 0;
     int indexCp = 0;
