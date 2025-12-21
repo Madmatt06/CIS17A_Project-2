@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
     //Set random seed
     srand(time(0));
     //Declare Variables
-    Game game;
+    Game *game;
     GameS saved;
     Card **unique;  // Instead of creating duplicate cards when there is more than one type of card, a single card is created and that pointer is duplicated the number of times needed in the draw pile.
     Card **colors;  // Restriction cards for playing wild cards
@@ -58,15 +58,6 @@ int main(int argc, char** argv) {
     fstream save;   // File used to restore the state of the program from when it was last ran
     
     //Initialize Variables
-    game.hand = nullptr;
-    game.bHand = nullptr;
-    game.drwPile = nullptr;
-    game.drwSize = 0;
-    game.drwMax = 0;
-    game.plScore = 0;
-    game.cpScore = 0;
-    
-    colors = genColor();
     
     //The Process -> Map Inputs to Outputs
     // Checks if a save file exists and if the game didn't end yet
@@ -77,11 +68,10 @@ int main(int argc, char** argv) {
         if(saved.cpScore >= 500 || saved.plScore >= 500) {    // The game ends if someone scores 500 points. Create a new game if that happened
             cout << "Save data is from a completed game, creating new game." << endl;
             setup.open("start.txt", ios::in);
-            unique = setupPile(game, setup);
+            game = new Game(setup);
             setup.close();
-            setupGame(game);
         } else {    // Load previous state for game
-            unique = loadSave(game, saved, colors, 4);
+            game = new Game(saved);
         }
     } else {
         cout << "No save data found. Starting a new game." << endl;
@@ -92,34 +82,23 @@ int main(int argc, char** argv) {
         save.open("save.data", ios::in | ios::out | ios::binary);
         // Reads file for what cards to include in a new game
         setup.open("start.txt", ios::in);
-        unique = setupPile(game, setup);
+        game = new Game(setup);
         setup.close();
-        setupGame(game);
     }
 
     //Display Inputs/Outputs
     // Gives instructions and plays game
     cout << "Welcome to Uno. When you are asked to play a card, you can either play one or draw. When you are going to have one card left, you must first type and enter uno before entering the card you wish to play. If the computer forgets to call uno, you can penalize them by entering uno before playing a card. To save and quit, type quit when asked to play a card." << endl;
-    playGame(game, 4, colors);
+    game->playGame();
 
     // Saves game state
     save.seekp(0L, ios::beg);
-    createSave(game, saved, unique);
+    game->createSave(saved);
     save.write(reinterpret_cast<char*>(&saved), sizeof(saved));
 
     //Exit the Program
     // Clean up memory
-    for(int i = 0; i < 54; i++) {
-        delete unique[i];
-    }
-    for(int i = 0; i < 4; i++) {
-        delete colors[i];
-    }
-    delete []unique;
-    delete []colors;
-    delete []game.drwPile;
-    delete []game.bHand;
-    delete []game.hand;
+    delete game;
     save.close();
     return 0;
 }

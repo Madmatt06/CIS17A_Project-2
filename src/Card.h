@@ -7,8 +7,8 @@
 #ifndef CARD_H
 #define CARD_H
 
-using namespace std;
 #include <string>
+using namespace std;
 
 class Card{
 private:
