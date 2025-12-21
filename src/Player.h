@@ -24,9 +24,12 @@ private:
     void removeCard(int &, Card **, Card *);            // Removes a card given its pointer from an array and decreases its size by one
     void printDeck(Card *);               // Prints what cards are in the array and what cards can be played.
 public:
+    Player();
     Card *playCard(Card*, Card**, int &, int, bool, bool &, bool &);
     Vector<Card*> getHand() const;
     void setHand(Vector<Card*> &);
+    int getScore() const;
+    void addScore(const int);
 };
 
 #endif /* PLAYER_H */

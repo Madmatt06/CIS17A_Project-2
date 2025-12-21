@@ -12,6 +12,10 @@ using namespace std;
 //User Libraries
 #include "Player.h"
 
+Player::Player() {
+    score = 0;
+}
+
 Card *Player::playCard(Card* rest, Card** drwPile, int &drwSize, int bHandS, bool uno, bool &unoed, bool &quit) {
     bool choosen = false;
     Card *usrCard = nullptr;
@@ -217,4 +221,8 @@ Vector<Card*> Player::getHand() const {
 }
 void Player::setHand(Vector<Card*> &nHand) {
     hand = nHand;
+}
+
+void Player::addScore(const int amnt) {
+    score += amnt;
 }
