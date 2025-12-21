@@ -26,7 +26,7 @@ private:
 public:
     Card *playCard(Card*, Card**, int &, int, bool, bool &, bool &);
     Vector<Card*> getHand() const;
-    void setHand(Vector<Card*>);
+    void setHand(Vector<Card*> &);
 };
 
 #endif /* PLAYER_H */

@@ -215,6 +215,6 @@ void Player::printDeck(Card *active) {
 Vector<Card*> Player::getHand() const {
     return hand;
 }
-void Player::setHand(Vector<Card*> nHand) {
+void Player::setHand(Vector<Card*> &nHand) {
     hand = nHand;
 }

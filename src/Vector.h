@@ -18,6 +18,7 @@ private:
 public:
     Vector();
     Vector(int);
+    Vector(const Vector<T> &);
     ~Vector();
     class OutOfBounds {
         int index;
@@ -33,6 +34,7 @@ public:
     void insert(T&, int&);
     T pop(int&);
     void remove(int&);
+    const Vector<T> operator=(const Vector<T> &orig)
     
 };
 
@@ -123,6 +125,32 @@ Vector<T>::Vector(int size) {
     }
     len = 0;
     max = size;
+}
+
+template <class T>
+Vector<T>::Vector(const Vector<T> &orig) {
+    len = orig.size()
+    max = len;
+    arr = new T[len];
+    for(int i = 0; i < len; i++) {
+        arr[i] = orig[i];
+    }
+}
+
+template <class T>
+const Vector<T> Vector<T>::operator=(const Vector<T> &orig) {
+    if(this != &orig) {
+        if(arr != nullptr) {
+            delete []arr;
+        }
+        len = orig.size()
+        max = len;
+        arr = new T[len];
+        for(int i = 0; i < len; i++) {
+            arr[i] = orig[i];
+        }
+    }
+    return *this;
 }
 
 
