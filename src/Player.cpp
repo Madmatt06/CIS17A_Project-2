@@ -12,6 +12,8 @@ using namespace std;
 //User Libraries
 #include "Player.h"
 
+int Player::players = 0;
+
 Card *Player::playCard(Card* rest, Card** drwPile, int &drwSize, int bHandS, bool uno, bool &unoed, bool &quit) {
     bool choosen = false;
     Card *usrCard = nullptr;
@@ -197,7 +199,7 @@ void Player::removeCard(int &size, Card **hand, Card *card) {
     size--;
 }
 
-void removeCard(Vector<Card*> &cards, Card *card) {
+void Player::removeCard(Vector<Card*> &cards, Card *card) {
     for(int i = 0; i < cards.size(); i++) {
         if(cards[i] == card) {
             cards.remove(i);
@@ -230,4 +232,18 @@ void Player::setHand(Vector<Card*> &nHand) {
 
 void Player::addScore(const int amnt) {
     score += amnt;
+}
+
+Vector<Card*> Player::getPlayable(Card* active) {
+    Vector<Card*> play;
+    int plIndex = 0;
+    for(int i = 0; i < hand.size(); i++) {
+        Card *card = hand[i];
+        // Adds all playable cards to the list
+        if(card->color == WILD || card->color == active->color || card->name == active->name) {
+            play[plIndex] = card;
+            plIndex++;
+        }
+    }
+    return play;
 }
