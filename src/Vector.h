@@ -21,26 +21,45 @@ public:
     Vector(const Vector<T> &);
     ~Vector();
     class OutOfBounds {
+        private:
         int index;
         int size;
+        public:
+        OutOfBounds(int nIndex, int nSize) {index = nIndex; size = nSize;}
+        int getIndex() const {return index;}
+        int getSize() const {return size;}
     };
     class ResizeLoosesData {
+        private:
         int size;
         int nSize;
+        public:
+        ResizeLoosesData(int oSize, int nNSize) {size = oSize; nSize = nNSize;}
+        int getSize() const {return size;};
+        int getNSize() const {return nSize;};
     };
     T &operator[](const int &);
-    int size() const {return size;};
+    const T &operator[](const int &) const;
+    int size() const {return len;};
     void append(T&);
     void insert(T&, int&);
     T pop(int&);
     void remove(int&);
-    const Vector<T> operator=(const Vector<T> &orig)
+    const Vector<T> operator=(const Vector<T> &orig);
     T *getArray() const {return arr;}
     
 };
 
 template <class T>
 T &Vector<T>::operator[](const int &index) {
+    if(index < 0 || index >= len) {
+        throw OutOfBounds(index, len);
+    }
+    return arr[index];
+}
+
+template <class T>
+const T &Vector<T>::operator[](const int &index) const{
     if(index < 0 || index >= len) {
         throw OutOfBounds(index, len);
     }
@@ -93,9 +112,9 @@ void Vector<T>::resize(int nSize) {
         return;
     }
     max += nSize;
-    T arrN = new T[max];
+    T *arrN = new T[max];
     for(int i = 0; i < len; i++) {
-        arr[i] = arrN[i];
+        arrN[i] = arr[i];
     }
     delete []arr;
     arr = arrN;
@@ -130,7 +149,7 @@ Vector<T>::Vector(int size) {
 
 template <class T>
 Vector<T>::Vector(const Vector<T> &orig) {
-    len = orig.size()
+    len = orig.size();
     max = len;
     arr = new T[len];
     for(int i = 0; i < len; i++) {
@@ -144,7 +163,7 @@ const Vector<T> Vector<T>::operator=(const Vector<T> &orig) {
         if(arr != nullptr) {
             delete []arr;
         }
-        len = orig.size()
+        len = orig.size();
         max = len;
         arr = new T[len];
         for(int i = 0; i < len; i++) {
