@@ -12,10 +12,6 @@ using namespace std;
 //User Libraries
 #include "Player.h"
 
-Player::Player() {
-    score = 0;
-}
-
 Card *Player::playCard(Card* rest, Card** drwPile, int &drwSize, int bHandS, bool uno, bool &unoed, bool &quit) {
     bool choosen = false;
     Card *usrCard = nullptr;
@@ -201,7 +197,7 @@ void Player::removeCard(int &size, Card **hand, Card *card) {
     size--;
 }
 
-void removeCard(Vector<Card*> cards, Card *card) {
+void removeCard(Vector<Card*> &cards, Card *card) {
     for(int i = 0; i < cards.size(); i++) {
         if(cards[i] == card) {
             cards.remove(i);
