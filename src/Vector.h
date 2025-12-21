@@ -35,6 +35,7 @@ public:
     T pop(int&);
     void remove(int&);
     const Vector<T> operator=(const Vector<T> &orig)
+    T *getArray() const {return arr;}
     
 };
 

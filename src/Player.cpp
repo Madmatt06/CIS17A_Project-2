@@ -201,6 +201,15 @@ void Player::removeCard(int &size, Card **hand, Card *card) {
     size--;
 }
 
+void removeCard(Vector<Card*> cards, Card *card) {
+    for(int i = 0; i < cards.size(); i++) {
+        if(cards[i] == card) {
+            cards.remove(i);
+            break;
+        }
+    }
+}
+
 void Player::printDeck(Card *active) {
     cout << "Cards in hand: ";
     for(int i = 0; i < hand.size(); i++) {
