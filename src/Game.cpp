@@ -12,6 +12,8 @@ using namespace std;
 //User Libraries
 #include "Game.h"
 #include "Card.h"
+#include "Player.h"
+#include "Computer.h"
 
 Game::Game(fstream &setFile) {
     init();
@@ -108,6 +110,9 @@ void Game::init() {
     cpScore = 0;
     colorS = 0;
     colors = genColor();
+    player = new Player();
+    compute = new Computer();
+    cout << "Game will have " << player->getCount() << " players/computers" << endl;
 }
 
 void Game::playGame() {
@@ -923,4 +928,6 @@ Game::~Game() {
     delete []drwPile;
     delete []bHand;
     delete []hand;
+    delete player;
+    delete compute;
 }
