@@ -12,7 +12,8 @@
 class Computer : public Player{
 private:
 public:
-    virtual Card *playCard(Card*, Card**, int &, int, bool, bool &, bool &);
+    virtual Card *playCard(Card*, Vector<Card*> &, int, bool, bool &, bool &, Player *prev);
+    virtual void draw(Vector<Card*> &, int);
 };
 
 #endif /* COMPUTER_H */

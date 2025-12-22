@@ -7,6 +7,7 @@
 
 //System Libraries
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 //User Libraries
@@ -14,15 +15,15 @@ using namespace std;
 
 int Player::players = 0;
 
-Card *Player::playCard(Card* rest, Card** drwPile, int &drwSize, int bHandS, bool uno, bool &unoed, bool &quit) {
+Card *Player::playCard(Card* rest, Vector<Card*> &drwPile, int bHandS, bool uno, bool &unoed, bool &quit, Player *prev) {
     bool choosen = false;
     Card *usrCard = nullptr;
     while(!choosen) {                               // This forces the user to play a valid card before continuing
         Vector<Card*> valid = getPlayable(rest);
-        if(valid.size() != 0 || drwSize != 0) {      // If its possible for the player to do something, allow them to play
+        if(valid.size() != 0 || drwPile.size() != 0) {      // If its possible for the player to do something, allow them to play
             cout << "The computer has " << bHandS << " cards" << endl;
             printDeck(rest);
-            cout << "Enter the card you would like to play (Type it as listed)" << ((drwSize > 0) ?" or type draw to draw a card" : "") << (uno? ". Since the computer didn't call uno, you can type uno to force them to draw" : "") << ": ";
+            cout << "Enter the card you would like to play (Type it as listed)" << ((drwPile.size() > 0) ?" or type draw to draw a card" : "") << (uno? ". Since the computer didn't call uno, you can type uno to force them to draw" : "") << ": ";
             string input, wordF, wordS;
             getline(cin, input);                    // Gets the card the player wants to play
             bool next = false;
@@ -34,7 +35,7 @@ Card *Player::playCard(Card* rest, Card** drwPile, int &drwSize, int bHandS, boo
                 return nullptr;
             }
             if(input == "draw") {                   // Special case for drawing from the pile
-                usrCard = drawCard(drwSize, drwPile);
+                usrCard = drawCard(drwPile);
                 if(usrCard == nullptr) {            // In case the user draws a card when there is nothing to draw (asks what to do again)
                     cout << "There are no cards to draw." << endl;
                 } else {                            // Tell the user what card they got. If its playable, ask if they want to play it
@@ -75,20 +76,7 @@ Card *Player::playCard(Card* rest, Card** drwPile, int &drwSize, int bHandS, boo
                     }
                 } else {    // Makes the computer draw 4 cards
                     cout << "The computer will draw 4 cards" << endl;
-                    int drawnC = 0;
-                    for(int i = 0; i < 4; i++) {
-                        Card *drawn = drawCard(drwSize, drwPile);
-                        if(drawn != nullptr) {
-                            drawnC++;
-                            addCard(drawn);
-                        }
-                    }
-                    if(drawnC != 4) {
-                        cout << "The computer could only draw " << drawnC << " cards." << endl;
-                    }
-                    if(drwSize == 0) {
-                        cout << "The draw pile is now empty." << endl;
-                    }
+                    prev->draw(drwPile, 4);
                 }
             }else { // Splits the input into two for parsing of card color and type
                 for(int i = 0; i < input.length(); i++) {
@@ -111,7 +99,7 @@ Card *Player::playCard(Card* rest, Card** drwPile, int &drwSize, int bHandS, boo
                         if(card->color == color && card->name == name) {
                             choosen = true;
                             usrCard = card;
-                            hand.remove(i);
+                            removeCard(hand, usrCard);
                             break;
                         }
                     }
@@ -171,18 +159,19 @@ int Player::strToNm(string input) {
     return -1;
 }
 
-Card *Player::drawCard(int &size, Card **draw) {
-    if(size == 0) {
+Card *Player::drawCard(Vector<Card*> &drwPile) {
+    if(drwPile.size() == 0) {
         return nullptr;
     }
-    int index = rand() % size;
-    Card *card = draw[index];
-    removeCard(size, draw, card);
+    int index = rand() % drwPile.size();
+    Card *card = drwPile[index];
+    drwPile.remove(index);
     return card;
 }
 
 void Player::addCard(Card *card) {
     hand.append(card);
+    sort(hand.begin(), hand.end());
 }
 
 void Player::removeCard(int &size, Card **hand, Card *card) {
@@ -236,14 +225,43 @@ void Player::addScore(const int amnt) {
 
 Vector<Card*> Player::getPlayable(Card* active) {
     Vector<Card*> play;
-    int plIndex = 0;
     for(int i = 0; i < hand.size(); i++) {
         Card *card = hand[i];
         // Adds all playable cards to the list
         if(card->color == WILD || card->color == active->color || card->name == active->name) {
-            play[plIndex] = card;
-            plIndex++;
+            play.append(card);
         }
     }
     return play;
+}
+
+void Player::draw(Vector<Card*> &drwPile, int num) {
+    int drawnC = 0;
+    for(int i = 0; i < num; i++) {
+        if(drwPile.size() == 0) {
+            break;
+        }
+        int index = rand() % drwPile.size();
+        Card *drawn = drwPile[index];
+        drwPile.remove(index);
+        hand.append(drawn);
+        drawnC++;
+        cout << "You drew a " << drawn->printCard() << endl;
+    }
+    if(drawnC < num) {
+        cout << "Only " << drawnC << " cards were drawn." << endl;
+    }
+    if(drawnC == 0) {
+        cout << "The draw pile was empty." << endl;
+    } 
+}
+
+bool Player::challengeWin(Card *check) {
+    for(int i = 0; i < hand.size(); i++) {
+        Card *card = hand[i];
+        if(check->color == card->color) {       // If there was a playable card with a matching color, then the challenger wins
+            return true;
+        }
+    }
+    return false;
 }

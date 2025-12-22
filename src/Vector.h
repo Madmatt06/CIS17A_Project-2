@@ -47,6 +47,8 @@ public:
     void remove(int&);
     const Vector<T> operator=(const Vector<T> &orig);
     T *getArray() const {return arr;}
+    T *begin() {if(len > 0) {return arr;} else {return nullptr;}}
+    T *end() {if(len > 0) {return arr+len;} else {return nullptr;}}
     
 };
 
@@ -81,8 +83,8 @@ void Vector<T>::insert(T &ins, int &index) {
     if(len >= max) {   // If the array is not large enough, replace it with a bigger one
         resize(len + 10);
     }
-    for(int i = index; i < len; i++) {
-        arr[i+1] = arr[i];
+    for(int i = len; i > index; i--) {
+        arr[i] = arr[i-1];
     }
     arr[index] = ins;
     len++;
@@ -95,7 +97,7 @@ T Vector<T>::pop(int &index) {
 }
 template <class T>
 void Vector<T>::remove(int &index) {
-    for(int i = index; i < len; i++) {
+    for(int i = index; i < len - 1; i++) {
         arr[i] = arr[i+1];
     }
     len--;
@@ -111,7 +113,8 @@ void Vector<T>::resize(int nSize) {
         arr = nullptr;
         return;
     }
-    max += nSize;
+    max = nSize;
+
     T *arrN = new T[max];
     for(int i = 0; i < len; i++) {
         arrN[i] = arr[i];
