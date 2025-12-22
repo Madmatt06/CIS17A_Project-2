@@ -1,0 +1,2 @@
+#CIS17A_Project-2
+This project extends off of my first project of creating an uno game. It implements topics that were recently covered including classes and subclasses (My favorite). All of the code is located in the src folder and the related files that are not code are outside it (documentation). The start.txt file can be modified but its recommended that only the number of each card is modified. Modifying the type of cards in a way that lowers the number of unique cards will likely break the program.

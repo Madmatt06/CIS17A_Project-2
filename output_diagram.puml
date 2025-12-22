@@ -1,0 +1,276 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+
+
+
+/' Objects '/
+
+class Card {
+	+color : int
+	+name : int
+	+printCard() : string
+}
+
+
+class Computer {
+	+playCard(Card*, Vector<Card*> &, int, bool, bool &, bool &, Player* prev) : Card*
+	+draw(Vector<Card*> &, int) : void
+}
+
+
+class Game {
+	+Game(fstream &)
+	+Game(GameS &)
+	+~Game()
+	-drawCard(Vector<Card*> &) : Card*
+	-genColor() : Card*
+	-lastPl : Card*
+	-playWild(int, Card**) : Card*
+	-rest : Card*
+	-colors : Card**
+	-unique : Card**
+	-compute : Player*
+	-player : Player*
+	-drwPile : Vector<Card*>
+	-turn : bool
+	-colorS : int
+	-strToCol(string) : int
+	-printCard(Card*) : string
+	-calcPoints(Vector<Card*>) : unsigned int
+	+createSave(GameS &) : void
+	-init() : void
+	+playGame() : void
+	-setupGame() : void
+	-setupPile(fstream &) : void
+}
+
+
+class Player {
+	+Player()
+	+~Player()
+	#drawCard(Vector<Card*> &) : Card*
+	+playCard(Card*, Vector<Card*> &, int, bool, bool &, bool &, Player* prev) : Card*
+	+operator+=(const int) : Player
+	+getHand() : Vector<Card*> {query}
+	#getPlayable(Card*) : Vector<Card*>
+	#hand : Vector<Card*>
+	+challengeWin(Card*) : bool
+	+{static} getCount() : int
+	+getScore() : int {query}
+	-score : int
+	-strToCol(string) : int
+	-strToNm(string) : int
+	-{static} players : static int
+	#addCard(Card*) : void
+	+draw(Vector<Card*> &, int) : void
+	-printDeck(Card*) : void
+	#removeCard(int &, Card**, Card*) : void
+	#removeCard(Vector<Card*> &, Card*) : void
+	+setHand(Vector<Card*> &) : void
+}
+
+
+class Vector <template<class T>> {
+	+Vector()
+	+Vector(int)
+	+Vector(const Vector<T> &)
+	+~Vector()
+	+pop(int &) : T
+	+operator[](const int &) : T&
+	+operator[](const int &) : T& {query}
+	-arr : T*
+	+begin() : T*
+	+end() : T*
+	+getArray() : T* {query}
+	+operator=(const Vector<T>& orig) : Vector<T>
+	-len : int
+	-max : int
+	+size() : int {query}
+	+append(T &) : void
+	+insert(T &, int &) : void
+	+remove(int &) : void
+	-resize(int) : void
+}
+
+
+class Vector::OutOfBounds {
+	+OutOfBounds(int nIndex, int nSize)
+	+getIndex() : int {query}
+	+getSize() : int {query}
+	-index : int
+	-size : int
+}
+
+
+class Vector::ResizeLoosesData {
+	+ResizeLoosesData(int oSize, int nNSize)
+	+getNSize() : int {query}
+	+getSize() : int {query}
+	-nSize : int
+	-size : int
+}
+
+
+enum Card::colors {
+	BLUE
+	GREEN
+	RED
+	WILD
+	YELLOW
+}
+
+
+enum Card::types {
+	CARD
+	EIGHT
+	FIVE
+	FOUR
+	NINE
+	ONE
+	PLUSF
+	PLUST
+	REV
+	SEVEN
+	SIX
+	SKIP
+	THREE
+	TWO
+	ZERO
+}
+
+
+enum Game::colors {
+	BLUE
+	GREEN
+	RED
+	WILD
+	YELLOW
+}
+
+
+enum Game::types {
+	CARD
+	EIGHT
+	FIVE
+	FOUR
+	NINE
+	ONE
+	PLUSF
+	PLUST
+	REV
+	SEVEN
+	SIX
+	SKIP
+	THREE
+	TWO
+	ZERO
+}
+
+
+enum Player::colors {
+	BLUE
+	GREEN
+	RED
+	WILD
+	YELLOW
+}
+
+
+enum Player::types {
+	CARD
+	EIGHT
+	FIVE
+	FOUR
+	NINE
+	ONE
+	PLUSF
+	PLUST
+	REV
+	SEVEN
+	SIX
+	SKIP
+	THREE
+	TWO
+	ZERO
+}
+
+
+class GameS {
+	+lastPl : Card
+	+rest : Card
+	+cards : Card[]
+	+turn : bool
+	+bHandS : int
+	+cpScore : int
+	+drwSize : int
+	+handS : int
+	+plScore : int
+	+bot : int[]
+	+draw : int[]
+	+play : int[]
+}
+
+
+
+
+
+/' Inheritance relationships '/
+
+Player <|-- Computer
+
+
+
+
+
+/' Aggregation relationships '/
+
+Game "4" o-- Card
+
+
+Game "2" o-- Player
+
+
+Game *-- Vector
+
+
+GameS "3" *-- Card
+
+
+Player *-- Vector
+
+
+
+
+
+
+/' Nested objects '/
+
+Card +-- Card::colors
+
+
+Card +-- Card::types
+
+
+Game +-- Game::colors
+
+
+Game +-- Game::types
+
+
+Player +-- Player::colors
+
+
+Player +-- Player::types
+
+
+Vector +-- Vector::OutOfBounds
+
+
+Vector +-- Vector::ResizeLoosesData
+
+
+
+
+@enduml
+
