@@ -10,6 +10,8 @@
 #include "Vector.h"
 #include "Card.h"
 
+class Game; // Used for friend
+
 class Player{
 private:
     static int players;                     // Keeps track of the number of players
@@ -32,11 +34,12 @@ public:
     virtual Card *playCard(Card*, Vector<Card*> &, int, bool, bool &, bool &, Player *prev);
     Vector<Card*> getHand() const;
     void setHand(Vector<Card*> &);
-    int getScore() const;
-    void addScore(const int);
+    int getScore() const {return score;}
+    Player operator+=(const int);
     static int getCount() {return players;}
     virtual void draw(Vector<Card*> &, int);
     bool challengeWin(Card *);
+    friend class Game;
 };
 
 #endif /* PLAYER_H */

@@ -18,8 +18,6 @@ private:
     enum colors {RED, GREEN, YELLOW, BLUE, WILD};
     enum types {ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, PLUST, REV, SKIP, PLUSF, CARD};
     bool turn;      // True is for the player, false is for the computer
-    int plScore;    // The score for the player
-    int cpScore;    // The score for the computer
     Card *lastPl;   // The last played card
     Card *rest;     // The current restriction on what can be played
     Vector<Card*> drwPile;  // The cards waiting to be drawn that way a game never has more than the max number according to the uno rules

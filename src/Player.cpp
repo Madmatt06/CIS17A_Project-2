@@ -219,8 +219,9 @@ void Player::setHand(Vector<Card*> &nHand) {
     hand = nHand;
 }
 
-void Player::addScore(const int amnt) {
+Player Player::operator+=(const int amnt) {
     score += amnt;
+    return *this;
 }
 
 Vector<Card*> Player::getPlayable(Card* active) {

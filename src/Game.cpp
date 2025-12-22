@@ -47,8 +47,8 @@ Game::Game(GameS &save) {
     init();
     // Loads the save and converts it into something actually usable (the game struct)
     int colorS = 4;
-    plScore = save.plScore;
-    cpScore = save.cpScore;
+    player->score = save.plScore;
+    compute += save.cpScore;
     Vector<Card*> hand = Vector<Card*>(save.handS);     // To prevent having to reallocate when adding, just preallocate
     Vector<Card*> bHand = Vector<Card*>(save.bHandS);   // To prevent having to reallocate when adding, just preallocate
     turn = save.turn;
@@ -85,8 +85,6 @@ Game::Game(GameS &save) {
 
 void Game::init() {
     //Initialize Variables
-    plScore = 0;
-    cpScore = 0;
     colorS = 0;
     colors = genColor();
     player = new Player();
@@ -96,7 +94,7 @@ void Game::init() {
 
 void Game::playGame() {
     bool uno = false, unoed = false, quit = false;  // Used to keep track of things in between turns
-    while(plScore < 500 && cpScore < 500) {   // A game ends when someone has 500 points or more
+    while(player->score < 500 && compute->getScore() < 500) {   // A game ends when someone has 500 points or more
         Card *card;
         Card *res;
         if(turn) {
@@ -227,29 +225,29 @@ void Game::playGame() {
         if(compute->getHand().size() == 0) {  // Checks if the computer ran out of cards and then calculates points earned if thats the case
             cout << "Computer has won!" << endl;
             Vector<Card*> plHand = player->getHand();
-            cpScore += calcPoints(plHand);
+            compute += calcPoints(plHand);
             for(int i = 0; i < plHand.size(); i++) {
                 drwPile.append(plHand[i]);
             }
             Vector<Card*> empty;
             player->setHand(empty);
-            cout << "Current Score" << endl << "Player: " << plScore << endl << "Computer: " << cpScore << endl;
+            cout << "Current Score" << endl << "Player: " << player->score << endl << "Computer: " << compute->getScore() << endl;
             setupGame();
         } else if(player->getHand().size() == 0) {    // Checks if the player ran out of cards and then calculates points earned if thats the case
             cout << "You have won!" << endl;
             Vector<Card*> cHand = compute->getHand();
-            plScore += calcPoints(cHand);
+            player += calcPoints(cHand);
             for(int i = 0; i < cHand.size(); i++) {
                 drwPile.append(cHand[i]);
             }
             Vector<Card*> empty;
             compute->setHand(empty);
-            cout << "Current Score" << endl << "Player: " << plScore << endl << "Computer: " << cpScore << endl;
+            cout << "Current Score" << endl << "Player: " << player->score << endl << "Computer: " << compute->getScore() << endl;
             setupGame();
         }
     }
-    if(plScore >= 500 || cpScore >= 500) {    // If someone earns 500+ points, the game ends
-        cout << "Game Complete! " << ((cpScore >= 500) ? "Computer" : "Player") << " won!" << endl;
+    if(player->score >= 500 || compute->getScore() >= 500) {    // If someone earns 500+ points, the game ends
+        cout << "Game Complete! " << ((compute->getScore() >= 500) ? "Computer" : "Player") << " won!" << endl;
     }
     cout << "Game will save" << endl;
 }
@@ -559,8 +557,8 @@ void Game::setupPile(fstream &setup) {
 
 void Game::createSave(GameS &save) {
     // Saves everything
-    save.plScore = plScore;
-    save.cpScore = cpScore;
+    save.plScore = player->score;
+    save.cpScore = compute->getScore();
     Vector<Card*> comHand = compute->getHand();
     Vector<Card*> plHand = player->getHand();
     save.bHandS = comHand.size();
