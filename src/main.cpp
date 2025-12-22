@@ -30,8 +30,6 @@ int main(int argc, char** argv) {
     //Declare Variables
     Game *game;
     GameS saved;
-    Card **unique;  // Instead of creating duplicate cards when there is more than one type of card, a single card is created and that pointer is duplicated the number of times needed in the draw pile.
-    Card **colors;  // Restriction cards for playing wild cards
     fstream setup;  // File used to setup the draw pile for a new game
     fstream save;   // File used to restore the state of the program from when it was last ran
     
@@ -80,4 +78,3 @@ int main(int argc, char** argv) {
     save.close();
     return 0;
 }
-

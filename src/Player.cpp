@@ -20,7 +20,7 @@ Card *Player::playCard(Card* rest, Vector<Card*> &drwPile, int bHandS, bool uno,
     Card *usrCard = nullptr;
     while(!choosen) {                               // This forces the user to play a valid card before continuing
         Vector<Card*> valid = getPlayable(rest);
-        if(valid.size() != 0 || drwPile.size() != 0) {      // If its possible for the player to do something, allow them to play
+        if(valid.size() != 0 || drwPile.size() != 0) {  // If its possible for the player to do something, allow them to play
             cout << "The computer has " << bHandS << " cards" << endl;
             printDeck(rest);
             cout << "Enter the card you would like to play (Type it as listed)" << ((drwPile.size() > 0) ?" or type draw to draw a card" : "") << (uno? ". Since the computer didn't call uno, you can type uno to force them to draw" : "") << ": ";
@@ -75,8 +75,10 @@ Card *Player::playCard(Card* rest, Vector<Card*> &drwPile, int bHandS, bool uno,
                         cout << "You can't call uno yet!" << endl;
                     }
                 } else {    // Makes the computer draw 4 cards
+                    uno = true;
                     cout << "The computer will draw 4 cards" << endl;
                     prev->draw(drwPile, 4);
+                    bHandS += 4;
                 }
             }else { // Splits the input into two for parsing of card color and type
                 for(int i = 0; i < input.length(); i++) {

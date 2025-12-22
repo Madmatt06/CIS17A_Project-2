@@ -48,7 +48,7 @@ Game::Game(GameS &save) {
     // Loads the save and converts it into something actually usable (the game struct)
     int colorS = 4;
     player->score = save.plScore;
-    compute += save.cpScore;
+    (*compute) += save.cpScore;
     Vector<Card*> hand = Vector<Card*>(save.handS);     // To prevent having to reallocate when adding, just preallocate
     Vector<Card*> bHand = Vector<Card*>(save.bHandS);   // To prevent having to reallocate when adding, just preallocate
     turn = save.turn;
@@ -225,7 +225,7 @@ void Game::playGame() {
         if(compute->getHand().size() == 0) {  // Checks if the computer ran out of cards and then calculates points earned if thats the case
             cout << "Computer has won!" << endl;
             Vector<Card*> plHand = player->getHand();
-            compute += calcPoints(plHand);
+            (*compute) += calcPoints(plHand);
             for(int i = 0; i < plHand.size(); i++) {
                 drwPile.append(plHand[i]);
             }
@@ -236,7 +236,7 @@ void Game::playGame() {
         } else if(player->getHand().size() == 0) {    // Checks if the player ran out of cards and then calculates points earned if thats the case
             cout << "You have won!" << endl;
             Vector<Card*> cHand = compute->getHand();
-            player += calcPoints(cHand);
+            (*player) += calcPoints(cHand);
             for(int i = 0; i < cHand.size(); i++) {
                 drwPile.append(cHand[i]);
             }
@@ -267,29 +267,6 @@ int Game::strToCol(string input) {
     }
     if(input == "wild") {
         return WILD;
-    }
-    return -1;
-}
-
-int Game::strToNm(string input) {
-    if(input.length() == 1 && isdigit(input[0])) {
-        return static_cast<int>(input[0] - '0');
-    } else {
-        if(input == "draw two") {
-            return PLUST;
-        }
-        if(input == "draw four") {
-            return PLUSF;
-        }
-        if(input == "reverse") {
-            return REV;
-        }
-        if(input == "skip") {
-            return SKIP;
-        }
-        if(input == "card") {
-            return CARD;
-        }
     }
     return -1;
 }
@@ -333,45 +310,6 @@ Card *Game::drawCard(Vector<Card*> &drwPile) {
     Card *card = drwPile[index];
     drwPile.remove(index);
     return card;
-}
-
-void Game::addCard(int &size, int &maxSize, Card ***hand, Card *card) {
-    if(size >= maxSize) {   // If the array is not large enough, replace it with a bigger one
-        maxSize += 10;
-        Card **handN = new Card*[maxSize];
-        copy(size, *hand, handN);
-        delete [](*hand);
-        *hand = handN;
-    }
-    (*hand)[size] = card;
-    size++;
-}
-
-bool Game::challengeWin(Card *check, Card **deck, int size) {
-    for(int i = 0; i < size; i++) {
-        Card *card = deck[i];
-        if(check->color == card->color) {       // If there was a playable card with a matching color, then the challenger wins
-            return true;
-        }
-    }
-    return false;
-}
-
-void Game::printDeck(int size, Card **deck, Card *active) {
-    cout << "Cards in hand: ";
-    for(int i = 0; i < size; i++) {
-        cout << printCard(deck[i]) << "; ";     // Prints all the cards in the array
-    }
-    cout << endl;
-    Card **play;
-    int playS;
-    play = getPlayable(size, deck, active, playS);
-    cout << "Playable cards in hand: ";
-    for(int i = 0; i < playS; i++) {
-        cout << printCard(play[i]) << "; ";     // Prints all playable cards
-    }
-    cout << endl;
-    delete []play;      // Frees memory
 }
 
 string Game::printCard(Card *card) {
@@ -462,52 +400,6 @@ unsigned int Game::calcPoints(Vector<Card*> deck) {
         }
     }
     return points;
-}
-
-Card **Game::getPlayable(int size, Card **deck, Card *active, int &plSize) {
-    Card **play;                        // Playable cards
-    int playS = 0;                      // Playable cards size
-    for(int i = 0; i < size; i++) {     // Calculates how large the new array needs to be to hold the playable cards
-        Card *card = deck[i];
-        if(card->color == WILD || card->color == active->color || card->name == active->name) {
-            playS++;
-        }
-    }
-    play = new Card*[playS];            // Creates the array with the correct size
-    plSize = playS;
-    int plIndex = 0;
-    for(int i = 0; i < size; i++) {
-        if(plIndex >= playS) {          // Ends loop early when it should be done
-            break;
-        }
-        Card *card = deck[i];
-        // Adds all playable cards to the list
-        if(card->color == WILD || card->color == active->color || card->name == active->name) {
-            play[plIndex] = card;
-            plIndex++;
-        }
-    }
-    return play;
-}
-
-void Game::copy(int size, Card **arr1, Card **arr2) {
-    for(int i = 0; i < size; i++) {
-        arr2[i] = arr1[i];
-    }
-}
-
-void Game::removeCard(int &size, Card **hand, Card *card) {
-    int index = 0;      // Finds the first instance of a card with a matching pointer and removes it
-    for(int i = 0; i < size; i++) {
-        if(hand[i] == card) {
-            index = i;
-            break;
-        }
-    }
-    for(int i = index+1; i < size; i++) {
-        hand[i-1] = hand[i];
-    }
-    size--;
 }
 
 Card **Game::genColor() {

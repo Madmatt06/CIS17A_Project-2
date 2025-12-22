@@ -31,6 +31,7 @@ protected:
 
 public:
     Player() {score = 0; players++;};
+    virtual ~Player() {}
     virtual Card *playCard(Card*, Vector<Card*> &, int, bool, bool &, bool &, Player *prev);
     Vector<Card*> getHand() const;
     void setHand(Vector<Card*> &);
